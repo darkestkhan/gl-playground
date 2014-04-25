@@ -171,11 +171,9 @@ package body GUI is
     Var: Box;
   begin
     Var.Vertices := Compute_Vertices (Pos, Size);
-    if Boxes.Container.Is_Empty then
-      Var.Attrib := 0;
-    else
-      Var.Attrib  := Box_Vectors.Last_Element (Boxes.Container).Attrib + 1;
-    end if;
+
+    GL.Gen_Vertex_Arrays (1, Var.VAO'Address);
+    GL.Bind_Vertex_Array (Var.VAO);
 
     GL.Gen_Buffers (1, Var.VBO'Address);
     GL.Bind_Buffer (GL.GL_ARRAY_BUFFER, Var.VBO);
@@ -199,7 +197,7 @@ package body GUI is
     GL.Use_Program (Var.Program);
 
     -- FIXME: Index may need to be different for each box.
-    GL.Enable_Vertex_Attrib_Array (Var.Attrib);
+    GL.Enable_Vertex_Attrib_Array (0);
     GL.Bind_Buffer (GL.GL_ARRAY_BUFFER, Var.VBO);
     GL.Vertex_Attrib_Pointer
       ( 0,
@@ -209,13 +207,9 @@ package body GUI is
         0,
         System'To_Address (0)
       );
-    GL.Disable_Vertex_Attrib_Array (Var.Attrib);
+    GL.Bind_Vertex_Array (0);
 
     Boxes.Container.Append (Var);
-  exception
-    when Storage_Error =>
-      TIO.Put_Line ("Error when creating box");
-      raise Storage_Error;
   end Create_Box;
 
   ---------------------------------------------------------------------------
@@ -233,30 +227,19 @@ package body GUI is
   is
     procedure Process (Cursor: in Box_Vectors.Cursor)
     is
-      Attrib: constant GL.UInt := Box_Vectors.Element (Cursor).Attrib;
-      Size  : constant Integer := Box_Vectors.Element (Cursor).Vertices'Length;
+      VAO   : constant GL.UInt := Box_Vectors.Element (Cursor).VAO;
+      Size  : constant Integer := Box_Vectors.Element (Cursor).Indices'Length;
       Program : constant GL.UInt := Box_Vectors.Element (Cursor).Program;
     begin
-      GL.Enable_Vertex_Attrib_Array (Attrib);
+      GL.Bind_Vertex_Array (VAO);
       GL.Draw_Elements
         ( GL.GL_TRIANGLES,
           Size,
           GL.GL_UNSIGNED_INT,
           System'To_Address (0)
         );
-      GL.Disable_Vertex_Attrib_Array (Attrib);
-
-      Window.Swap (Win);
-      --GL.Use_Program (Program);
-
-      TIO.Put_Line ("it works");
-    exception
-      when Storage_Error =>
-        TIO.Put_Line
-          ( "Error at Draw for Box " &
-            GL.UInt'Image (Box_Vectors.Element (Cursor).Attrib)
-          );
-        raise Storage_Error;
+      GL.Use_Program (Program);
+      GL.Bind_Vertex_Array (0);
     end Process;
   begin
     GL.Clear (GL.GL_COLOR_BUFFER_BIT);

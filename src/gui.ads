@@ -82,7 +82,7 @@ private
     Program : GL.UInt;
     VBO     : GL.UInt;
     IBO     : GL.UInt;
-    Attrib  : GL.UInt;
+    VAO     : GL.UInt;
   end record;
 
   package Box_Vectors is new Ada.Containers.Vectors (Positive, Box);

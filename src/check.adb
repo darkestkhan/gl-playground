@@ -42,7 +42,7 @@ begin
   Window.Make_Current (Win);
   GUI.Init;
   GUI.Create_Box (Win, GUI.Coord2D'(0, 0), GUI.Coord2D'(319, 479), 0, Boxes);
-  GUI.Create_Box (Win, GUI.Coord2D'(450, 450), GUI.Coord2D'(49, 49), 0, Boxes);
+  GUI.Create_Box (Win, GUI.Coord2D'(450, 400), GUI.Coord2D'(49, 49), 0, Boxes);
 
   while Window.Process_Events (Win) loop
     GUI.Draw (Win, Boxes);
